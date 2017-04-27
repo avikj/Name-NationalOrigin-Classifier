@@ -1,5 +1,8 @@
 import tensorflow as tf
 import numpy as np
+import os.path
+
+model_save_path = 'tmp/model.ckpt'
 
 learning_rate = 0.003
 
@@ -7,9 +10,10 @@ n_input = 27 # alphabet and space
 n_hidden = 128 # hidden layer features
 max_sequence_length = 11
 alphabet = 'abcdefghijklmnopqrstuvwxyz '
-ethnicities = ['chinese', 'japanese', 'vietnamese', 'korean']
+ethnicities = ['chinese', 'japanese']#, 'vietnamese']#, 'korean']
 n_classes = len(ethnicities)
-
+name_strings = []
+ethnicity_strings = []
 def __main__():
   str_list = []
   names_list = []
@@ -18,6 +22,8 @@ def __main__():
     for line in csv:
       l = [s.strip() for s in line.split(',')]
       if(l[1] in ethnicities):
+        name_strings.append(l[0])
+        ethnicity_strings.append(l[1])
         names_list.append(name_one_hot(l[0], max_sequence_length))
         ethnicity_list.append(ethnicity_one_hot(l[1]))
   rng_state = np.random.get_state() # use the same random number generator state
@@ -49,19 +55,32 @@ def __main__():
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
   init = tf.global_variables_initializer()
+  saver = tf.train.Saver()
 
   sess = tf.InteractiveSession()
   sess.run(init)
-  for _ in range(200):
-    sess.run(train_step, feed_dict={X: training_X, y: training_y})
-    if _%10 == 0:
-      train_accuracy = accuracy.eval(feed_dict={
-        X:training_X, y:training_y})
-      print("step %d, training accuracy %g"%(_, train_accuracy))
-      test_accuracy = accuracy.eval(feed_dict={X:testing_X, y:testing_y})
-      print("testing accuracy", test_accuracy)
-
-
+  if not os.path.isfile(model_save_path+'.index'):
+    for _ in range(200):
+      sess.run(train_step, feed_dict={X: training_X, y: training_y})
+      if _%10 == 0:
+        train_accuracy = accuracy.eval(feed_dict={
+          X:training_X, y:training_y})
+        print("step %d, training accuracy %g"%(_, train_accuracy))
+        test_accuracy = accuracy.eval(feed_dict={X:testing_X, y:testing_y})
+        print("testing accuracy", test_accuracy)
+    saver.save(sess, model_save_path)
+    print("Model saved in file: %s" % model_save_path)
+  '''for i in range(len(name_strings)):
+    name = name_strings[i]
+    ethnicity = ethnicity_strings[i]
+    if not tf.equal(tf.argmax(y[0], axis=0), tf.argmax(y_[0], axis=0)).eval(feed_dict={X: np.expand_dims(name_one_hot(name, 11), axis=0), y: np.expand_dims(ethnicity_one_hot(ethnicity), axis=0)}):
+      print('incorrect', name, ethnicity)'''
+  while True:
+    input_name = raw_input('Enter a last name (max 11 letters):')
+    while len(input_name) > 11 or len(input_name) == 0:
+      input_name = raw_input('Invalid input. Enter a last name (max 11 letters):')
+    input_name = input_name.lower()
+    print(ethnicities[np.argmax(y_.eval(feed_dict={X: np.expand_dims(name_one_hot(input_name, 11), axis=0)}))])
 def weight_variable(shape):
   initial = tf.truncated_normal(shape, stddev=0.1)
   return tf.Variable(initial)
