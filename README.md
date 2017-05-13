@@ -1,6 +1,6 @@
 # Name Ethnicity Classifier
 
-Humans are often able to accurately predict someone's ethnicity based on their last name, even if they have not seen it before. For example, one can predict that "Kang" is more likely to be a Chinese last name than a Japanese one, while "Kobayashi" seems characteristically Japanese. 
+Humans are often able to accurately predict someone's ethnicity based on their last name, even if they have not seen it before. For example, one can predict that "Yang" is more likely to be a Chinese last name than a Japanese one, while "Kobayashi" seems characteristically Japanese. 
 
 I used a recurrent neural network with TensorFlow in Python to train a model to do this automatically. The model achieved **97% accuracy** in classifying names as Chinese pr Japanese names, 87% accuracy in classifying names as Chinese, Japanese, or Vietnamese, and 79% accuracy in classifying names as Chinese, Japanese, Vietnamese, or Korean. 
 
